@@ -1,0 +1,30 @@
+Analog_Input HoursAhead;
+
+String_Output DateStart;
+String_Output DateEnd;
+
+
+String_Function GetOffsetDate(integer offset){
+    integer yearNumber;
+    integer monthNumber;
+    integer hourNumber;
+    integer dayNumber;
+    string offsetDate[200];
+
+    yearNumber = GetYearNum();
+    monthNumber = GetMonthNum();
+    dayNumber = GetDateNum();
+    hourNumber = GetHourNum() + offset;
+    if (hourNumber % 24 > 0){
+        dayNumber = dayNumber + hourNumber/24;
+        hourNumber = hourNumber % 24;
+    }
+    MakeString(offsetDate,"%02u/%02u/%04u %02u:00:00",monthNumber,dayNumber,yearNumber,hourNumber);
+    return (offsetDate);
+}
+
+
+Change HoursAhead{
+    DateStart = GetOffsetDate(HoursAhead);
+    DateEnd = GetOffsetDate(HoursAhead+1);
+}

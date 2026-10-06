@@ -1,0 +1,74 @@
+#enable_trace
+
+Digital_Input TemperatureInFahrenheit;
+Digital_Output _skip_;
+
+Analog_Input UiTemperature;
+Analog_Input XioTemperature;
+
+Analog_Output TemperatureScaled;
+String_Output TemperatureScaledText;
+
+Integer currentTemperature;
+
+
+Integer_Function ConvertToCelsius(Integer fahrenheit) {
+	Signed_Integer celsius;
+    celsius = muldiv((fahrenheit - 320 ),5,9);
+	Return (celsius);
+}
+
+Integer_Function ConvertToFarenheit(Integer celsius) {
+	Signed_Integer farenheit;
+    farenheit = muldiv(celsius,9,5) + 320;
+	Return (farenheit);
+}
+
+String_Function PretyPrintTemperature(Integer temperature) {
+	String temperatureText[100];
+	temperatureText = IToA(temperature);
+	temperatureText = Left(temperatureText, len(temperatureText)-1) + "." + Right(temperatureText, 1);
+	If (TemperatureInFahrenheit) {
+		temperatureText = temperatureText + "F°";
+	}
+	Else {
+		temperatureText = temperatureText + "C°";
+	}
+	Return (temperatureText);
+
+}
+
+Function SetUiTemperatureFb() {
+	If (TemperatureInFahrenheit = On) {
+		TemperatureScaled = currentTemperature;
+	}
+	Else {
+		TemperatureScaled = ConvertToCelsius(currentTemperature);
+	}
+	TemperatureScaledText = PretyPrintTemperature(TemperatureScaled);
+}
+
+
+Change UiTemperature {
+	currentTemperature = UiTemperature;
+	SetUiTemperatureFb();
+}
+
+Change XioTemperature {
+	If (TemperatureInFahrenheit = Off) {
+		currentTemperature = ConvertToFarenheit(XioTemperature);
+	}
+	Else {
+		currentTemperature = XioTemperature;
+	}
+	SetUiTemperatureFb();
+
+}
+
+Change TemperatureInFahrenheit {
+    SetUiTemperatureFb();
+}
+
+function Main(){
+    currentTemperature = 700;
+}
